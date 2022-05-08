@@ -1,45 +1,22 @@
-import { useState } from "react";
 import TaskEdit from "./TaskEdit";
 
-function TaskItem({ deleteTask, updateTaskItem, taskItem: {id, title, completed} }) {
-  const [isEdit, setIsEdit] = useState(false);
-
-  const handleStatusToggle = () => updateTaskItem(id, {completed: !completed});
-
-  const updateTaskTitle = (title) => updateTaskItem(id, {title: title});
-
+function TaskItem() {
   return (
     <li
-      key={id}
-      className={`list-group-item d-flex justify-content-between align-items-center py-3 bd-callout ${
-        completed ? "bd-callout-success" : "bd-callout-warning"
-      }`}
+      className={`list-group-item d-flex justify-content-between align-items-center py-3 bd-callout bd-callout-success`}
     >
-      {isEdit ? (
-        <TaskEdit
-          title={title}
-          exitEdit={() => setIsEdit(false)}
-          updateTaskTitle={updateTaskTitle}
-        />
-      ) : (
-        <>
-          <span onClick={() => setIsEdit(true)}>{title}</span>
-          <div className="btn-group">
-            <button
-              onClick={handleStatusToggle}
-              className="btn btn-info rounded-0"
-            >
-              <i className={`fas fa-toggle-${completed ? "on" : "off"}`} />
-            </button>
-            <button
-              onClick={() => deleteTask(id)}
-              className="btn btn-danger rounded-0"
-            >
-              <i className="far fa-trash-alt" />
-            </button>
-          </div>
-        </>
-      )}
+      <TaskEdit />
+      <>
+        <span>Title</span>
+        <div className="btn-group">
+          <button className="btn btn-info rounded-0">
+            <i className={`fas fa-toggle-on`} />
+          </button>
+          <button className="btn btn-danger rounded-0">
+            <i className="far fa-trash-alt" />
+          </button>
+        </div>
+      </>
     </li>
   );
 }

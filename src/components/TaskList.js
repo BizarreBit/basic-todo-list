@@ -1,12 +1,10 @@
 import TaskItem from "./TaskItem";
 
-function TaskList({ filteredTaskList, deleteTask, updateTaskItem }) {
+function TaskList() {
   return (
     <div className="shadow">
       <ul className="list-group rounded-0">
-        {filteredTaskList.map((taskItem) => (
-          <TaskItem key={taskItem.id} deleteTask={deleteTask} updateTaskItem={updateTaskItem} taskItem={taskItem} />
-        ))}
+        <TaskItem />
       </ul>
     </div>
   );

@@ -1,9 +1,7 @@
-function CountTask({ filteredTaskList }) {
-  const unfinishedTaskCount = () =>
-    filteredTaskList.filter((taskItem) => !taskItem.completed).length;
-  return (
+function CountTask() {
+   return (
     <div className="mt-4 py-3 text-center text-white bg-black">
-      {`${unfinishedTaskCount()} of ${filteredTaskList.length} Remaining`}
+      1 of 2 Remaining
     </div>
   );
 }

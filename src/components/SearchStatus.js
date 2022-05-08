@@ -1,8 +1,4 @@
-function SearchStatus({ setSearchStatus }) {
-  const handleChange = (e) => {
-      const value = e.target.value;
-      setSearchStatus(!value ? value : value === "true");
-    }
+function SearchStatus() {
   return (
     <div className="btn-group ms-3">
       <input
@@ -10,9 +6,8 @@ function SearchStatus({ setSearchStatus }) {
         name="status"
         id="all"
         value=""
-        onChange={handleChange}
         className="btn-check"
-        defaultChecked="true"
+        defaultChecked
       />
       <label className="btn btn-outline-secondary rounded-0" htmlFor="all">
         <i className="fas fa-tasks" />
@@ -22,7 +17,6 @@ function SearchStatus({ setSearchStatus }) {
         name="status"
         id="done"
         value="true"
-        onChange={handleChange}
         className="btn-check"
       />
       <label className="btn btn-outline-secondary rounded-0" htmlFor="done">
@@ -33,7 +27,6 @@ function SearchStatus({ setSearchStatus }) {
         name="status"
         id="doing"
         value="false"
-        onChange={handleChange}
         className="btn-check"
       />
       <label className="btn btn-outline-secondary rounded-0" htmlFor="doing">
