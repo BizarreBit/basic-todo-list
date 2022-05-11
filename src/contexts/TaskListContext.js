@@ -1,39 +1,69 @@
 import axios from "axios";
-import { createContext, useState, useEffect } from "react";
+import { createContext, useEffect, useReducer } from "react";
 
 const TaskListContext = createContext();
 
+// Action
+// ADD_TASK
+// DELETE_TASK
+// TOGGLE_TASK
+// EDIT_TASK
+// FETCH_TASK
+
+const initialTaskList = [];
+const taskReducer = (state, action) => {
+  //action {type: "ADD_TASK", value: { title; "homework", complete: false, id: "abcdef"}}
+  console.log("reducer run");
+  switch (action.type) {
+    case "ADD_TASK":
+      return [action.payload.task, ...state];
+    case "DELETE_TASK": {
+      const newTaskList = [...state];
+      newTaskList.splice(action.payload.idx, 1);
+      return newTaskList;
+    }
+    case "UPDATE_TASK": {
+      const newTaskList = [...state];
+      newTaskList[action.payload.idx] = action.payload.task;
+      return newTaskList;
+    }
+    case "FETCH_TASK":
+      return action.payload.tasks;
+    default:
+      return state;
+  }
+};
+
+// action type:
+// TEXT_SEARCH
+// STATUS_SEARCH
+const initialSearch = { title: "", completed: "" };
+const searchReducer = (state, action) => {
+  switch (action.type) {
+    case "SEARCH":
+      return { ...state, ...action.payload.taskItemProp };
+    default:
+      return state;
+  }
+};
+
 function TaskListContextProvider(props) {
-  const [taskList, setTaskList] = useState([]);
-  const [search, setSearch] = useState({ title: "", completed: "" });
+  const [taskList, dispatchTaskList] = useReducer(taskReducer, initialTaskList);
+  // dispatch({type: "FETCH_TASK", payload: []})
+
+  const [search, dispatchSearch] = useReducer(searchReducer, initialSearch);
 
   useEffect(() => {
     axios
       .get("http://localhost:8080/todos")
-      .then((res) => setTaskList(res.data.todos))
+      .then((res) =>
+        dispatchTaskList({
+          type: "FETCH_TASK",
+          payload: { tasks: res.data.todos },
+        })
+      )
       .catch((err) => console.log(err));
-    // const fetchTask = async () => {
-    //   try {
-    //     const res = await axios.get("http://localhost:8080/todos");
-    //     setTaskList(res.data.todos);
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // };
-    // fetchTask();
   }, []);
-
-  // const addTask = (title) =>
-  //   axios
-  //     .post("http://localhost:8080/todos", { title: title, completed: false })
-  //     .then((res) => {
-  //       setTaskList(prev => [res.data.todo, ...prev]);
-  //       return true;
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //       return false;
-  //     });
 
   const addTask = async (title) => {
     try {
@@ -41,7 +71,8 @@ function TaskListContextProvider(props) {
         title: title,
         completed: false,
       });
-      setTaskList((prev) => [res.data.todo, ...prev]);
+      // setTaskList((prev) => [res.data.todo, ...prev]);
+      dispatchTaskList({ type: "ADD_TASK", payload: { task: res.data.todo } });
       return true;
     } catch (err) {
       console.log(err);
@@ -49,79 +80,46 @@ function TaskListContextProvider(props) {
     }
   };
 
-  // const deleteTask = (id) => {
-  //   const idx = taskList.findIndex((item) => item.id === id);
-  //   if (idx !== -1) {
-  //     return axios
-  //       .delete("http://localhost:8080/todos/" + id)
-  //       .then(() => {
-  //         const newTaskList = [...taskList];
-  //         newTaskList.splice(idx, 1);
-  //         setTaskList(newTaskList);
-  //         return true;
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //         return false;
-  //       });
-  //   }
-  // };
-
   const deleteTask = async (id) => {
     const idx = taskList.findIndex((item) => item.id === id);
-    if (idx !== -1)
-      try {
-        await axios.delete("http://localhost:8080/todos/" + id);
-        const newTaskList = [...taskList];
-        newTaskList.splice(idx, 1);
-        setTaskList(newTaskList);
-        return true;
-      } catch (err) {
-        console.log(err);
-        return false;
-      }
+    try {
+      await axios.delete("http://localhost:8080/todos/" + id);
+      // const newTaskList = [...taskList];
+      // newTaskList.splice(idx, 1);
+      // setTaskList(newTaskList);
+      dispatchTaskList({ type: "DELETE_TASK", payload: { idx } });
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
   };
-
-  // const updateTask = (id, taskItemProp) => {
-  //   const idx = taskList.findIndex((item) => item.id === id);
-  //   if (idx !== -1) {
-  //     return axios
-  //       .put("http://localhost:8080/todos/" + id, {
-  //         ...taskList[idx],
-  //         ...taskItemProp,
-  //       })
-  //       .then((res) => {
-  //         const newTaskList = [...taskList];
-  //         newTaskList[idx] = res.data.todo;
-  //         setTaskList(newTaskList);
-  //         return true;
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //         return false;
-  //       });
-  //   }
-  // };
 
   const updateTask = async (id, taskItemProp) => {
     const idx = taskList.findIndex((item) => item.id === id);
-    if (idx !== -1)
-      try {
-        const res = await axios.put("http://localhost:8080/todos/" + id, {
-          ...taskList[idx],
-          ...taskItemProp,
-        });
-        const newTaskList = [...taskList];
-        newTaskList[idx] = res.data.todo;
-        setTaskList(newTaskList);
-        return true;
-      } catch (err) {
-        console.log(err);
-        return false;
-      }
+    try {
+      const res = await axios.put("http://localhost:8080/todos/" + id, {
+        ...taskList[idx],
+        ...taskItemProp,
+      });
+      // const newTaskList = [...taskList];
+      // newTaskList[idx] = res.data.todo;
+      // setTaskList(newTaskList);
+      dispatchTaskList({
+        type: "UPDATE_TASK",
+        payload: { idx, task: res.data.todo },
+      });
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
   };
 
-  const searchTask = (taskItemProp) => {setSearch((prev) => ({ ...prev, ...taskItemProp }))};
+  const searchTask = (taskItemProp) => {
+    // setSearch((prev) => ({ ...prev, ...taskItemProp }));
+    dispatchSearch({ type: "SEARCH", payload: { taskItemProp } });
+  };
 
   const filteredTaskList =
     search.title === "" && search.completed === ""
