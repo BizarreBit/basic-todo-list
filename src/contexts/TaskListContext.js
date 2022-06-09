@@ -1,5 +1,6 @@
-import axios from "axios";
+import axios from "../config/axios";
 import { createContext, useState, useEffect } from "react";
+import * as localStorageServices from "../services/localStorage";
 
 const TaskListContext = createContext();
 
@@ -9,12 +10,18 @@ function TaskListContextProvider(props) {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/todos")
+      .get("/todos", 
+      // {
+      //   headers: {
+      //     Authorization: "Bearer " + localStorageServices.getToken(),
+      //   },
+      // }
+      )
       .then((res) => setTaskList(res.data.todos))
       .catch((err) => console.log(err));
     // const fetchTask = async () => {
     //   try {
-    //     const res = await axios.get("http://localhost:8080/todos");
+    //     const res = await axios.get("/todos");
     //     setTaskList(res.data.todos);
     //   } catch (err) {
     //     console.log(err);
@@ -25,7 +32,7 @@ function TaskListContextProvider(props) {
 
   // const addTask = (title) =>
   //   axios
-  //     .post("http://localhost:8080/todos", { title: title, completed: false })
+  //     .post("/todos", { title: title, completed: false })
   //     .then((res) => {
   //       setTaskList(prev => [res.data.todo, ...prev]);
   //       return true;
@@ -37,10 +44,18 @@ function TaskListContextProvider(props) {
 
   const addTask = async (title) => {
     try {
-      const res = await axios.post("http://localhost:8080/todos", {
-        title: title,
-        completed: false,
-      });
+      const res = await axios.post(
+        "/todos",
+        {
+          title: title,
+          completed: false,
+        },
+        // {
+        //   headers: {
+        //     Authorization: "Bearer " + localStorageServices.getToken(),
+        //   },
+        // }
+      );
       setTaskList((prev) => [res.data.todo, ...prev]);
       return true;
     } catch (err) {
@@ -53,7 +68,7 @@ function TaskListContextProvider(props) {
   //   const idx = taskList.findIndex((item) => item.id === id);
   //   if (idx !== -1) {
   //     return axios
-  //       .delete("http://localhost:8080/todos/" + id)
+  //       .delete("/todos/" + id)
   //       .then(() => {
   //         const newTaskList = [...taskList];
   //         newTaskList.splice(idx, 1);
@@ -71,7 +86,13 @@ function TaskListContextProvider(props) {
     const idx = taskList.findIndex((item) => item.id === id);
     if (idx !== -1)
       try {
-        await axios.delete("http://localhost:8080/todos/" + id);
+        await axios.delete("/todos/" + id, 
+        // {
+        //   headers: {
+        //     Authorization: "Bearer " + localStorageServices.getToken(),
+        //   },
+        // }
+        );
         const newTaskList = [...taskList];
         newTaskList.splice(idx, 1);
         setTaskList(newTaskList);
@@ -86,7 +107,7 @@ function TaskListContextProvider(props) {
   //   const idx = taskList.findIndex((item) => item.id === id);
   //   if (idx !== -1) {
   //     return axios
-  //       .put("http://localhost:8080/todos/" + id, {
+  //       .put("/todos/" + id, {
   //         ...taskList[idx],
   //         ...taskItemProp,
   //       })
@@ -107,10 +128,18 @@ function TaskListContextProvider(props) {
     const idx = taskList.findIndex((item) => item.id === id);
     if (idx !== -1)
       try {
-        const res = await axios.put("http://localhost:8080/todos/" + id, {
-          ...taskList[idx],
-          ...taskItemProp,
-        });
+        const res = await axios.put(
+          "/todos/" + id,
+          {
+            ...taskList[idx],
+            ...taskItemProp,
+          },
+          // {
+          //   headers: {
+          //     Authorization: "Bearer " + localStorageServices.getToken(),
+          //   },
+          // }
+        );
         const newTaskList = [...taskList];
         newTaskList[idx] = res.data.todo;
         setTaskList(newTaskList);
@@ -121,7 +150,9 @@ function TaskListContextProvider(props) {
       }
   };
 
-  const searchTask = (taskItemProp) => {setSearch((prev) => ({ ...prev, ...taskItemProp }))};
+  const searchTask = (taskItemProp) => {
+    setSearch((prev) => ({ ...prev, ...taskItemProp }));
+  };
 
   const filteredTaskList =
     search.title === "" && search.completed === ""

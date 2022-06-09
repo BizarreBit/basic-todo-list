@@ -1,22 +1,24 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
+// import { useNavigate } from "react-router-dom";
 import axios from "../config/axios";
+import { AuthContext } from "../contexts/AuthContext";
 
 function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  const navigate = useNavigate()
+  const { login } = useContext(AuthContext);
+  //   const navigate = useNavigate()
 
   const handleSubmitLogin = (e) => {
     e.preventDefault();
     axios
       .post("/auth/login", { username, password })
       .then((res) => {
-        console.log(res.data);
-        localStorage.setItem("token", res.data.token);
-        navigate("/")
+        // console.log(res.data);
+        // localStorage.setItem("token", res.data.token);
+        // navigate("/")
+        login(res.data.token);
       })
       .catch((err) => {
         console.log(err);
